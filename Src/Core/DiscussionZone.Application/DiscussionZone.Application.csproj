@@ -10,4 +10,8 @@
     <ProjectReference Include="..\DiscussionZone.Domain\DiscussionZone.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repository\" />
+  </ItemGroup>
+
 </Project>

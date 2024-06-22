@@ -19,7 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Configuration\" />
+    <Folder Include="Repository\" />
+    <Folder Include="UnitOfWork\" />
   </ItemGroup>
 
 </Project>

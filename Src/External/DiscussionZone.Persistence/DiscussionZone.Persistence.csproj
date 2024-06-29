@@ -18,9 +18,4 @@
     <ProjectReference Include="..\..\Core\DiscussionZone.Application\DiscussionZone.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repository\" />
-    <Folder Include="UnitOfWork\" />
-  </ItemGroup>
-
 </Project>

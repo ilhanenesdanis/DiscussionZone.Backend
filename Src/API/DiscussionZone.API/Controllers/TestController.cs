@@ -11,7 +11,6 @@ namespace DiscussionZone.API.Controllers
         [HttpGet]
         public async Task<IActionResult> Test()
         {
-            _logger.LogInformation("Loglama işlemi tamamlandı");
             return Ok();
         }
     }

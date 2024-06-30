@@ -1,3 +1,4 @@
+using DiscussionZone.API.Middleware;
 using DiscussionZone.Persistence.IOC;
 using Serilog;
 using Serilog.Core;
@@ -46,6 +47,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
 
 app.UseHttpLogging();
 

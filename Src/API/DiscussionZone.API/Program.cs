@@ -1,20 +1,19 @@
 using DiscussionZone.API.Middleware;
 using DiscussionZone.Persistence.IOC;
+using HealthChecks.UI.Client;
 using Serilog;
 using Serilog.Core;
-using Serilog.Sinks.PostgreSQL;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddPersistenceService(builder.Configuration);
-
 
 Logger log = new LoggerConfiguration()
     .WriteTo.Console()
@@ -28,6 +27,11 @@ Logger log = new LoggerConfiguration()
 
 builder.Host.UseSerilog(log);
 
+builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("PostgreSQL") ?? string.Empty);
+
+builder.Services.AddHealthChecksUI()
+    .AddPostgreSqlStorage(builder.Configuration.GetConnectionString("PostgreSQL") ?? string.Empty);
 
 builder.Services.AddHttpLogging(logging =>
 {
@@ -40,7 +44,19 @@ builder.Services.AddHttpLogging(logging =>
 
 var app = builder.Build();
 
+app.UseHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = _ => true,
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+app.UseHealthChecksUI(opt =>
+{
+    opt.UIPath = "/health-ui";
+});
+
 app.UseSerilogRequestLogging();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

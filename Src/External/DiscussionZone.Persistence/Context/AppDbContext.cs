@@ -63,7 +63,7 @@ namespace DiscussionZone.Persistence.Context
                 .ForEach(x =>
                 {
                     if (x.CreateDate == DateTime.MinValue)
-                        x.CreateDate = DateTime.Now;
+                        x.CreateDate = DateTime.UtcNow;
                     x.IsDeleted = false;
                     x.IsActive = true;
                 });

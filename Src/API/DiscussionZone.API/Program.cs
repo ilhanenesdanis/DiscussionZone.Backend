@@ -3,6 +3,8 @@ using DiscussionZone.Persistence.IOC;
 using HealthChecks.UI.Client;
 using Serilog;
 using Serilog.Core;
+using DiscussionZone.Application.Extensions;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddPersistenceService(builder.Configuration);
+builder.Services.AddApplicationDependency();
 
 Logger log = new LoggerConfiguration()
     .WriteTo.Console()

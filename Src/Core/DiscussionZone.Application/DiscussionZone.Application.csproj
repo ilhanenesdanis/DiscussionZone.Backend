@@ -7,7 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DiscussionZone.Domain\DiscussionZone.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Command\Category\Delete\" />
+    <Folder Include="Features\Command\Category\Update\" />
+    <Folder Include="Features\Queries\Category\GetCategory\" />
+    <Folder Include="Mapping\" />
+    <Folder Include="Exceptions\" />
+    <Folder Include="Helpers\" />
+    <Folder Include="Validators\" />
   </ItemGroup>
 
 </Project>

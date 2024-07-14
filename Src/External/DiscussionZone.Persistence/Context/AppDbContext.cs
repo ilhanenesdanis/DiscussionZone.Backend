@@ -24,7 +24,7 @@ namespace DiscussionZone.Persistence.Context
         public DbSet<Tag> Tags { get; set; }
         public DbSet<UserAvatar> UserAvatars { get; set; }
 
-        
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -57,20 +57,23 @@ namespace DiscussionZone.Persistence.Context
         }
         private void OnBeforeSave()
         {
-            ChangeTracker.Entries().Where(x => x.State == EntityState.Added)
-                .Select(x => (BaseEntity)x.Entity)
-                .ToList()
-                .ForEach(x =>
-                {
-                    if (x.CreateDate == DateTime.MinValue)
-                        x.CreateDate = DateTime.UtcNow;
-                    x.IsDeleted = false;
-                    x.IsActive = true;
-                });
+            ChangeTracker.Entries()
+            .Where(x => x.State == EntityState.Added && x.Entity is BaseEntity && !(x.Entity is AppUser))
+            .Select(x => (BaseEntity)x.Entity)
+            .ToList()
+            .ForEach(x =>
+            {
+                if (x.CreateDate == DateTime.MinValue)
+                    x.CreateDate = DateTime.UtcNow;
+                x.IsDeleted = false;
+                x.IsActive = true;
+            });
+
         }
         private void OnBeforeUpdate()
         {
-            ChangeTracker.Entries().Where(x => x.State == EntityState.Modified)
+            ChangeTracker.Entries()
+                .Where(x => x.State == EntityState.Modified && x.Entity is BaseEntity && !(x.Entity is AppUser))
                 .Select(x => (BaseEntity)x.Entity)
                 .ToList()
                 .ForEach(x =>

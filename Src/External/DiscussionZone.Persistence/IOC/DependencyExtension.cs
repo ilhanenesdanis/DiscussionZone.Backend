@@ -1,7 +1,9 @@
 ﻿using DiscussionZone.Application.Repository;
+using DiscussionZone.Application.Services;
 using DiscussionZone.Application.UnitOfWork;
 using DiscussionZone.Persistence.Context;
 using DiscussionZone.Persistence.Repository;
+using DiscussionZone.Persistence.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +20,7 @@ namespace DiscussionZone.Persistence.IOC
 
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IAuthService, AuthService>();
 
         }
     }

@@ -27,6 +27,8 @@ namespace DiscussionZone.Application.Features.Command.User.Create
                 LastName = request.LastName,
                 UserName = request.Email,
                 PhoneNumber = request.Phone,
+                EmailConfirmed=true,
+                PhoneNumberConfirmed=true,
             }, request.Password);
 
             if (result.Succeeded)

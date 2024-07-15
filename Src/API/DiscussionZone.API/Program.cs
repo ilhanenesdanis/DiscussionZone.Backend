@@ -1,17 +1,21 @@
-using DiscussionZone.API.Middleware;
-using DiscussionZone.Persistence.IOC;
-using HealthChecks.UI.Client;
-using Serilog;
-using Serilog.Core;
-using DiscussionZone.Application.Extensions;
-using DiscussionZone.Domain;
-using Microsoft.AspNetCore.Identity;
-using DiscussionZone.Persistence.Context;
 using DiscussionZone.API.Filters;
-using FluentValidation.AspNetCore;
+using DiscussionZone.API.Middleware;
+using DiscussionZone.Application.DTOs;
+using DiscussionZone.Application.Extensions;
 using DiscussionZone.Application.Validators.Category;
 using DiscussionZone.Application.Validators.User;
-
+using DiscussionZone.Domain;
+using DiscussionZone.Persistence.Context;
+using DiscussionZone.Persistence.IOC;
+using FluentValidation.AspNetCore;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Core;
+using System.Text;
+using DiscussionZone.Infrasracture.IOC;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,15 +24,42 @@ builder.Services.AddControllers(opt =>
 {
     opt.Filters.Add<ValidationFilter>();
 })
-.AddFluentValidation(conf=>conf.RegisterValidatorsFromAssemblyContaining<CategoryValidator>())
-.ConfigureApiBehaviorOptions(options => options.SuppressModelStateInvalidFilter = true); ;
+.AddFluentValidation(conf => conf.RegisterValidatorsFromAssemblyContaining<CategoryValidator>())
+.ConfigureApiBehaviorOptions(options => options.SuppressModelStateInvalidFilter = true);
 
 builder.Services.AddEndpointsApiExplorer();
+
+
+var jwtSettings = builder.Configuration.GetSection("JWT").Get<JwtSettings>();
+var key = Encoding.ASCII.GetBytes(jwtSettings?.Key ?? string.Empty);
+
+
+
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+{
+    x.RequireHttpsMetadata = false;//
+    x.SaveToken = true;//
+    x.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
 
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddPersistenceService(builder.Configuration);
 builder.Services.AddApplicationDependency();
+builder.Services.AddInfrasractureService();
 
 Logger log = new LoggerConfiguration()
     .WriteTo.Console()
@@ -60,8 +91,9 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(conf =>
     conf.SignIn.RequireConfirmedPhoneNumber = false;
 
 })
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddPasswordValidator<CustomPasswordValidator>();
+.AddEntityFrameworkStores<AppDbContext>()
+.AddPasswordValidator<CustomPasswordValidator>()
+.AddDefaultTokenProviders();
 
 builder.Services.AddHealthChecks()
     .AddNpgSql(builder.Configuration.GetConnectionString("PostgreSQL") ?? string.Empty);
@@ -107,6 +139,7 @@ app.UseHttpLogging();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

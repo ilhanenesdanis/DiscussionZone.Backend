@@ -18,8 +18,8 @@ namespace DiscussionZone.API.IOC
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(x =>
             {
-                x.RequireHttpsMetadata = false;//
-                x.SaveToken = true;//
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
                 x.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,

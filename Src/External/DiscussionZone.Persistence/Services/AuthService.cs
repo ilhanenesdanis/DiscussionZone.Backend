@@ -22,18 +22,29 @@ namespace DiscussionZone.Persistence.Services
 
         public async Task<Token> LoginAsync(string email, string password, int accessTokenLifeTime)
         {
-            var user =await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
                 throw new NotFoundException("Kullanıcı Bulunamadı");
 
             SignInResult result = await _signInManager.CheckPasswordSignInAsync(user, password, true);
-            if(result.Succeeded)
+            if (result.Succeeded)
             {
+                await _userManager.ResetAccessFailedCountAsync(user);
+
+
                 Token token = _tokenHandler.CreateAccessToken(60, user);
                 return token;
             }
-            throw new UnauthorizedAccessException("Geçersiz kullanıcı adı veya parola");
+            else if(result.IsLockedOut)
+                throw new UnauthorizedAccessException("Hesabınız Kilitlenmiştir");
+            else
+            {
+                int failCount = await _userManager.GetAccessFailedCountAsync(user);
+                if (failCount == 4)
+                    await _userManager.SetLockoutEndDateAsync(user, new DateTimeOffset(DateTime.Now.AddSeconds(20)));
 
+                throw new UnauthorizedAccessException("Geçersiz kullanıcı adı veya parola");
+            }
         }
 
         public Task<Token> RefreshTokenLoginAsync(string refreshToken)

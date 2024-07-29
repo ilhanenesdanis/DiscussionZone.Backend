@@ -31,6 +31,7 @@ builder.Services.AddSerilogConfiguration(builder.Configuration, builder.Host);
 builder.Services.AddIdentityConfiguration();
 builder.Services.AddHealthCheckConfiguration(builder.Configuration);
 
+
 builder.Services.AddHttpLogging(logging =>
 {
     logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
